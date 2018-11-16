@@ -49,7 +49,7 @@ set(SOURCE_FILES
 
 add_library(luna STATIC ${SOURCE_FILES})
 
-add_executable(luna_simple main.cpp)
+add_executable(luna_simple example/main.cpp)
 target_link_libraries(luna_simple luna)
 
 add_executable(luna_unittest luna/test.cc)
