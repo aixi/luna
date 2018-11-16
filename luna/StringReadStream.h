@@ -44,7 +44,7 @@ public:
         }
     }
 
-    void AssertThenNext(char ch)
+    void Expect(char ch)
     {
         assert(ch == Peek());
         Next();

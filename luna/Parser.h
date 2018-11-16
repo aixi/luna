@@ -5,7 +5,12 @@
 #ifndef LUNA_PARSER_H
 #define LUNA_PARSER_H
 
+#include <errno.h>
+#include <math.h>
+
 #include <luna/Value.h>
+
+
 
 namespace luna
 {
@@ -18,7 +23,9 @@ public:
         kOK,
         kExpectValue,
         kInvalidLiteralValue,
-        kRootNotSingular
+        kInvalidDigitValue,
+        kRootNotSingular,
+        kDoubleTooBig
     };
 
     template <typename ReadStream>
@@ -42,7 +49,7 @@ public:
     static Status ParseLiteral(ReadStream& is, Handler& handler, const char* literal, ValueType type)
     {
         char ch = is.Peek();
-        is.AssertThenNext(*literal++);
+        is.Expect(*literal++);
         while (*literal != '\0' && is.Peek() == *literal)
         {
             ++literal;
@@ -69,7 +76,52 @@ public:
     template <typename ReadStream, typename Handler>
     static Status ParseNumber(ReadStream& is, Handler& handler)
     {
-        //TODO
+        auto start = is.GetIter();
+        if (is.Peek() == '-')
+        {
+            is.Next();
+        }
+        if (is.Peek() == '0')
+        {
+            is.Next();
+        }
+        else
+        {
+            if (!isdigit(is.Peek()))
+            {
+                return Status::kInvalidDigitValue;
+            }
+            for (; isdigit(is.Peek()); is.Next());
+        }
+        if (is.Peek() == '.')
+        {
+            is.Next();
+            if (!isdigit(is.Peek()))
+            {
+                return Status::kInvalidDigitValue;
+            }
+            for (; isdigit(is.Peek()); is.Next());
+        }
+        if (is.Peek() == 'e' || is.Peek() == 'E')
+        {
+            is.Next();
+            if (is.Peek() == '-' || is.Peek() == '+')
+            {
+                is.Next();
+            }
+            if (!isdigit(is.Peek()))
+            {
+                return Status::kInvalidDigitValue;
+            }
+            for (; isdigit(is.Peek()); is.Next());
+        }
+        errno = 0;
+        double d = strtod(&*start, nullptr);
+        if (errno == ERANGE && (d == HUGE_VAL || d == -HUGE_VAL))
+        {
+            return Status::kDoubleTooBig;
+        }
+        handler.Double(d);
         return Status::kOK;
     }
 

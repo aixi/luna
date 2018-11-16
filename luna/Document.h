@@ -26,31 +26,28 @@ public:
 
 public: //Handler
 
-    bool Null()
+    void Null()
     {
         AddValue(Value(ValueType::kNull));
-        return true;
     }
 
-    bool Bool(bool b)
+    void Bool(bool b)
     {
         AddValue(Value(b));
-        return true;
     }
 
-    bool Double(double d)
+    void Double(double d)
     {
         AddValue(Value(d));
-        return true;
     }
 
-    bool String(std::string_view sv)
+    void String(std::string_view sv)
     {
         AddValue(Value(sv));
-        return true;
     }
 
 private:
+
     template <typename ReadStream>
     Parser::Status ParseStream(ReadStream& is)
     {
