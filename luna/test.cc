@@ -24,4 +24,20 @@ BOOST_AUTO_TEST_CASE(tesParseError)
     BOOST_CHECK(status == Parser::Status::kInvalidLiteralValue);
 }
 
+BOOST_AUTO_TEST_CASE(testParseLiteral)
+{
+    Document document;
+    Parser::Status status = document.Parse(" null  ");
+    BOOST_CHECK(status == Parser::Status::kOK);
+    BOOST_CHECK(document.GetType() == ValueType::kNull);
+    status = document.Parse("\n\ttrue");
+    BOOST_CHECK(status == Parser::Status::kOK);
+    BOOST_CHECK(document.GetType() == ValueType::kBool);
+    BOOST_CHECK(document.GetBool());
+    status = document.Parse("\n\tfalse  ");
+    BOOST_CHECK(status == Parser::Status::kOK);
+    BOOST_CHECK(document.GetType() == ValueType::kBool);
+    BOOST_CHECK(!document.GetBool());
+}
+
 BOOST_AUTO_TEST_SUITE_END()
