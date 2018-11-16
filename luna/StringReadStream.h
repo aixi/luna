@@ -36,12 +36,19 @@ public:
         return iter_;
     }
 
-    void Next()
+    char Next()
     {
+        char ch = Peek();
         if (HasNext())
         {
             ++iter_;
+            return ch;
         }
+        else
+        {
+            return '\0';
+        }
+
     }
 
     void Expect(char ch)

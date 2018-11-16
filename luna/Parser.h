@@ -7,7 +7,7 @@
 
 #include <errno.h>
 #include <math.h>
-
+#include <vector>
 #include <luna/Value.h>
 
 
@@ -24,6 +24,9 @@ public:
         kExpectValue,
         kInvalidLiteralValue,
         kInvalidDigitValue,
+        kInvalidStringEscape,
+        kStringMissingQuotationMark,
+        kInvalidStringChar,
         kRootNotSingular,
         kDoubleTooBig
     };
@@ -128,8 +131,58 @@ public:
     template <typename ReadStream, typename Handler>
     static Status ParseString(ReadStream& is, Handler& handler)
     {
-        //TODO
-        return Status::kOK;
+        is.Expect('\"');
+        char ch;
+        std::string buffer;
+        while (is.HasNext())
+        {
+            switch (ch = is.Next())
+            {
+                case '\"':
+                    handler.String(buffer);
+                    return Status::kOK;
+                case '\\':
+                    switch (ch = is.Next())
+                    {
+                        case '\"':
+                            buffer.push_back('\"');
+                            break;
+                        case '\\':
+                            buffer.push_back('\\');
+                            break;
+                        case '/':
+                            buffer.push_back('/');
+                            break;
+                        case 'b':
+                            buffer.push_back('\b');
+                            break;
+                        case 'f':
+                            buffer.push_back('\f');
+                            break;
+                        case 'n':
+                            buffer.push_back('\n');
+                            break;
+                        case 'r':
+                            buffer.push_back('\r');
+                            break;
+                        case 't':
+                            buffer.push_back('\t');
+                            break;
+                        default:
+                            return Status::kInvalidStringEscape;
+                    }
+                    break;
+                case '\0':
+                    return Status::kStringMissingQuotationMark;
+                default:
+                    if (static_cast<unsigned char>(ch) < 0x20)
+                    {
+                        return Status::kInvalidStringChar;
+                    }
+                    buffer.push_back(ch);
+                    break;
+            }
+        }
     }
 
 
@@ -188,13 +241,6 @@ public:
         }
         return status;
     }
-
-
-
-
-
-
-
 }; //class Parser
 
 } //namespace luna
