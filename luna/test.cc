@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE(testParseString)
             "\x24",
             "\xC2\xA2",
             "\xE2\x82\xAC",
-//             "\xF0\x9D\x84\x9E" G clef sign U+1D11E test failed
+             "\xF0\x9D\x84\x9E"
     };
     std::vector<std::string> jsons = {
             "\"\"",
@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE(testParseString)
             "\"\\u0024\"",
             "\"\\u00A2\"",
             "\"\\u20AC\"",
-//            "\"\\uD834\\uDD1E\""  G clef sign U+1D11E test failed
+            "\"\\uD834\\uDD1E\""
     };
     Document document;
     Parser::Status status;

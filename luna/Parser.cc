@@ -32,7 +32,7 @@ void Parser::EncodeUTF8(std::string& buffer, unsigned u)
         buffer.push_back((0xF0 | ((u >> 18) & 0xFF)));
         buffer.push_back((0x80 | ((u >> 12) & 0x3F)));
         buffer.push_back((0x80 | ((u >> 6) & 0x3F)));
-        buffer.push_back((0xE0 | (u & 0x3F)));
+        buffer.push_back((0x80 | (u & 0x3F)));
     }
 }
 
