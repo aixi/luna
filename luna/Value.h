@@ -44,7 +44,7 @@ public:
     Value& operator=(Value&& rhs) noexcept;
 
     ~Value();
-    
+
     explicit Value(ValueType type = ValueType::kNull);
 
     explicit Value(bool b);
@@ -83,10 +83,16 @@ public:
         return *new (this) Value(d);
     }
 
-    std::string_view GetString() const
+    std::string_view GetStringView() const
     {
         assert(type_ == ValueType::kString);
         return std::string_view(s_->data.data(), s_->data.size());
+    }
+
+    std::string GetString() const
+    {
+        assert(type_ == ValueType::kString);
+        return std::string(s_->data.data(), s_->data.size());
     }
 
     Value& SetString(std::string_view sv)

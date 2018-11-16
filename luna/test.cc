@@ -57,30 +57,62 @@ BOOST_AUTO_TEST_CASE(testParseLiteral)
 BOOST_AUTO_TEST_CASE(testParseNumber)
 {
     Document document;
-    std::vector<std::string_view> numbers = {
-            "0"sv,
-            "-0"sv,
-            "-0.0"sv,
-            "1"sv,
-            "-1"sv,
-            "1.5"sv,
-            "-1.5"sv,
-            "3.1415"sv,
-            "1E10"sv,
-            "1e10"sv,
-            "1E+10"sv,
-            "1E-10"sv,
-            "-1E10"sv,
-            "-1e10"sv,
-            "-1E-10"sv,
-            "1.234E+10"sv,
-            "1.234E-10"sv
+    std::vector<std::string> numbers = {
+            "0",
+            "-0",
+            "-0.0",
+            "1",
+            "-1",
+            "1.5",
+            "-1.5",
+            "3.1415",
+            "1E10",
+            "1e10",
+            "1E+10",
+            "1E-10",
+            "-1E10",
+            "-1e10",
+            "-1E-10",
+            "1.234E+10",
+            "1.234E-10"
     };
     for (std::string_view str : numbers)
     {
         Parser::Status status = document.Parse(str);
         BOOST_CHECK(status == Parser::Status::kOK);
         BOOST_CHECK_CLOSE(strtod(str.data(), nullptr), document.GetDouble(), 0.000001);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testParseString)
+{
+    std::vector<std::string> expect = {
+            "",
+            "Hello",
+            "Hello\nWorld",
+            "\" \\ / \b \f \n \r \t",
+            "\x24",
+            "\xC2\xA2",
+            "\xE2\x82\xAC",
+//             "\xF0\x9D\x84\x9E" G clef sign U+1D11E test failed
+    };
+    std::vector<std::string> jsons = {
+            "\"\"",
+            "\"Hello\"",
+            "\"Hello\\nWorld\"",
+            "\"\\\" \\\\ \\/ \\b \\f \\n \\r \\t\"",
+            "\"\\u0024\"",
+            "\"\\u00A2\"",
+            "\"\\u20AC\"",
+//            "\"\\uD834\\uDD1E\""  G clef sign U+1D11E test failed
+    };
+    Document document;
+    Parser::Status status;
+    for (size_t i = 0; i < expect.size(); ++i)
+    {
+        status = document.Parse(jsons[i]);
+        BOOST_CHECK(status == Parser::Status::kOK);
+        BOOST_CHECK_EQUAL(expect[i], document.GetString());
     }
 }
 

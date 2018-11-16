@@ -26,11 +26,14 @@ public:
         kInvalidDigitValue,
         kInvalidStringEscape,
         kStringMissingQuotationMark,
+        kInvalidUnicodeSurrogate,
         kInvalidStringChar,
+        kInvalidUnicodeHex,
         kRootNotSingular,
         kDoubleTooBig
     };
 
+private:
     template <typename ReadStream>
     static void ParseWhitespace(ReadStream& is)
     {
@@ -128,11 +131,42 @@ public:
         return Status::kOK;
     }
 
+    template <typename ReadStream>
+    static bool Parse4Hex(unsigned& u, ReadStream& is)
+    {
+        u = 0;
+        for (size_t i = 0; i < 4; ++i)
+        {
+            char ch = is.Next();
+            u <<= 4;
+            if (ch >= '0' && ch <= '9')
+            {
+                u |= ch - '0';
+            }
+            else if (ch >= 'A' && ch <= 'F')
+            {
+                u |= ch - ('A' - 10);
+            }
+            else if (ch >= 'a' && ch <= 'f')
+            {
+                u |= ch - ('a' - 10);
+            }
+            else
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    static void EncodeUTF8(std::string& buffer, unsigned u);
+
     template <typename ReadStream, typename Handler>
     static Status ParseString(ReadStream& is, Handler& handler)
     {
         is.Expect('\"');
         char ch;
+        unsigned u = 0, u2 = 0;
         std::string buffer;
         while (is.HasNext())
         {
@@ -168,6 +202,34 @@ public:
                         case 't':
                             buffer.push_back('\t');
                             break;
+                        case 'u':
+
+                            if (!Parse4Hex(u, is))
+                            {
+                                return Status::kInvalidUnicodeHex;
+                            }
+                            if (u >= 0xD800 && u <= 0xD8FF) //surrogate pair
+                            {
+                                if ((ch = is.Next()) != '\\')
+                                {
+                                    return Status::kInvalidUnicodeSurrogate;
+                                }
+                                if ((ch = is.Next()) != 'u')
+                                {
+                                    return Status::kInvalidUnicodeSurrogate;
+                                }
+                                if (!Parse4Hex(u2, is))
+                                {
+                                    return Status::kInvalidUnicodeHex;
+                                }
+                                if (u2 < 0xDC00 || u2 > 0xDFFF)
+                                {
+                                    return Status::kInvalidUnicodeSurrogate;
+                                }
+                                u = (((u - 0xD800) << 10) | (u2 - 0xDC00)) + 0x10000;
+                            }
+                            EncodeUTF8(buffer, u);
+                            break;
                         default:
                             return Status::kInvalidStringEscape;
                     }
@@ -180,11 +242,10 @@ public:
                         return Status::kInvalidStringChar;
                     }
                     buffer.push_back(ch);
-                    break;
             }
         }
+        return Status::kStringMissingQuotationMark;
     }
-
 
     template <typename ReadStream, typename Handler>
     static Status ParseArray(ReadStream& is, Handler& handler)
@@ -226,6 +287,7 @@ public:
         }
     }
 
+public:
     template <typename ReadStream, typename Handler>
     static Status Parse(ReadStream& is, Handler& handler)
     {
@@ -241,6 +303,7 @@ public:
         }
         return status;
     }
+
 }; //class Parser
 
 } //namespace luna
