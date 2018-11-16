@@ -28,7 +28,7 @@ public:
 
     char Peek() const
     {
-        return HasNext() ? *iter_ : '\0';_
+        return HasNext() ? *iter_ : '\0';
     }
 
     Iterator GetIter() const

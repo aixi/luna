@@ -15,6 +15,8 @@
 namespace luna
 {
 
+class Document;
+
 enum class ValueType
 {
     kNull,
@@ -27,6 +29,8 @@ enum class ValueType
 
 class Value
 {
+    friend class Document;
+
 public:
 
     Value(const Value& rhs);
@@ -40,7 +44,7 @@ public:
     Value& operator=(Value&& rhs) noexcept;
 
     ~Value();
-
+    
     explicit Value(ValueType type = ValueType::kNull);
 
     explicit Value(bool b);

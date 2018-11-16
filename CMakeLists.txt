@@ -45,7 +45,9 @@ set(SOURCE_FILES
         luna/Parser.h
         luna/Parser.cc
         luna/Generator.h
-        luna/Generator.cc)
+        luna/Generator.cc
+        luna/Document.h
+        luna/Document.cc)
 
 add_library(luna STATIC ${SOURCE_FILES})
 
