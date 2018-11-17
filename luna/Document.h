@@ -46,6 +46,10 @@ public: //Handler
         AddValue(Value(sv));
     }
 
+    void StartArray();
+
+    void EndArray();
+
 private:
 
     template <typename ReadStream>
@@ -55,6 +59,9 @@ private:
     }
 
     Value* AddValue(Value&& value);
+
+    std::vector<Value*> stack_;
+
 }; //class Document
 
 } //namespace luna

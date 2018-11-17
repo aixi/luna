@@ -23,7 +23,7 @@ enum class ValueType
     kBool,
     kNumber,
     kString,
-//    kArray,
+    kArray,
 //    kObject
 };
 
@@ -114,7 +114,7 @@ private:
             data(std::forward<Args>(args)...)
         {}
 
-        //NOTE: this class has trivial default ctor dtor in order to be a data member of union
+        //NOTE: this class has non-trivial ctor, as a data member of a union may cause compiler
 
         ~SimpleRefCount()
         {
@@ -141,13 +141,16 @@ private:
     };
 
     using StringWithRefCount = SimpleRefCount<std::vector<char>>;
+    using ArrayWIthRefCount = SimpleRefCount<std::vector<Value>>;
 
     //FIXME: std::variant ?
+    //NOTE: https://stackoverflow.com/questions/10693913/c11-anonymous-union-with-non-trivial-members
     union
     {
         bool b_;
         double d_;
         StringWithRefCount* s_;
+        ArrayWIthRefCount * a_;
     };
 };
 

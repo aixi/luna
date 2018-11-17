@@ -3,8 +3,25 @@
 
 using namespace luna;
 
+struct B
+{
+    B(int a, int b) :
+        x(a),
+        y(b)
+    {}
+
+    int x;
+    int y;
+};
+
+union A
+{
+    int c;
+    std::string str;
+};
+
 int main()
 {
-    Value value;    
+
     return 0;
 }

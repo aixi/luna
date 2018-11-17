@@ -23,6 +23,10 @@ Value::Value(const Value& rhs) :
             s_ = rhs.s_;
             s_->IncrAndGet();
             break;
+        case ValueType::kArray:
+            a_ = rhs.a_;
+            a_->IncrAndGet();
+            break;
     }
 }
 
@@ -49,14 +53,20 @@ Value& Value::operator=(const Value& rhs)
             s_ = rhs.s_;
             s_->IncrAndGet();
             break;
+        case ValueType::kArray:
+            a_ = rhs.a_;
+            a_->IncrAndGet();
+            break;
     }
     return *this;
 }
 
+//NOTE: only kString kArray kObject need move semantic
 
 Value::Value(Value&& rhs) noexcept :
     type_(rhs.type_)
 {
+    rhs.type_ = ValueType::kNull;
     switch (type_)
     {
         case ValueType::kNull:
@@ -67,6 +77,9 @@ Value::Value(Value&& rhs) noexcept :
             s_ = rhs.s_;
             rhs.s_ = nullptr;
             break;
+        case ValueType::kArray:
+            a_ = rhs.a_;
+            rhs.a_ = nullptr;
     }
 }
 
@@ -78,6 +91,7 @@ Value& Value::operator=(Value&& rhs) noexcept
     }
     this->~Value();
     type_ = rhs.type_;
+    rhs.type_ = ValueType::kNull;
     switch (type_)
     {
         case ValueType::kNull:
@@ -87,6 +101,10 @@ Value& Value::operator=(Value&& rhs) noexcept
         case ValueType::kString:
             s_ = rhs.s_;
             rhs.s_ = nullptr;
+            break;
+        case ValueType::kArray:
+            a_ = rhs.a_;
+            rhs.a_ = nullptr;
             break;
     }
     return *this;
@@ -106,6 +124,12 @@ Value::~Value()
                 delete s_;
             }
             break;
+        case ValueType::kArray:
+            if (a_->DecrAndGet() == 0)
+            {
+                delete a_;
+            }
+            break;
     }
 }
 
@@ -121,6 +145,9 @@ Value::Value(ValueType type) :
             break;
         case ValueType::kString:
             s_ = new StringWithRefCount;
+            break;
+        case ValueType::kArray:
+            a_ = new ArrayWIthRefCount;
             break;
     }
 }

@@ -250,8 +250,13 @@ private:
     template <typename ReadStream, typename Handler>
     static Status ParseArray(ReadStream& is, Handler& handler)
     {
-        //TODO
-        return Status::kOK;
+//        is.Expect('[');
+//        handler.StartArray();
+//        ParseWhitespace(is);
+//        if (is.Peek() == ']')
+//        {
+//
+//        }
     }
 
     template <typename ReadStream, typename Handler>
