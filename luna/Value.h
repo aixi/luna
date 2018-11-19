@@ -38,7 +38,7 @@ public:
     Value& operator=(const Value& rhs);
 
     //FIXME: move ctor move assign pass by value ?
-    //NOTE: only kString kArray kObject need move semantic
+    //NOTE: in our design only kString kArray kObject need move semantic
     Value(Value&& rhs) noexcept;
 
     Value& operator=(Value&& rhs) noexcept;
@@ -114,7 +114,7 @@ private:
             data(std::forward<Args>(args)...)
         {}
 
-        //NOTE: this class has non-trivial ctor, as a data member of a union may cause compiler
+        //NOTE: this class has non-trivial ctor, as a data member of union type may trigger compile time error
 
         ~SimpleRefCount()
         {
@@ -124,7 +124,7 @@ private:
         int IncrAndGet()
         {
             //NOTE: The combination of atomic operations is not atomic
-            //refs.store(refs.load(std::memory_order_relaxed) + 1);
+            //e.g. refs.store(refs.load(std::memory_order_relaxed) + 1);
             //FIXME: memory_order_relaxed ?
             return ++refs;
         }
