@@ -116,4 +116,20 @@ BOOST_AUTO_TEST_CASE(testParseString)
     }
 }
 
+BOOST_AUTO_TEST_CASE(testParseArray)
+{
+    Document document;
+    Parser::Status status;
+    std::vector<std::string> jsons = {
+        "[ \n\r ]",
+        "[ 0, 1 , 2, 3]",
+        "[0, [1, 2], 3]"
+    };
+    for (const std::string& json : jsons)
+    {
+        status = document.Parse(json);
+        BOOST_CHECK(status == Parser::Status::kOK);
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END()

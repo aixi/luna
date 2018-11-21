@@ -18,6 +18,7 @@ namespace luna
 class Parser
 {
 public:
+
     enum class Status
     {
         kOK,
@@ -30,7 +31,8 @@ public:
         kInvalidStringChar,
         kInvalidUnicodeHex,
         kRootNotSingular,
-        kDoubleTooBig
+        kDoubleTooBig,
+        kArrayMissCommaOrBracket
     };
 
 private:
@@ -250,13 +252,36 @@ private:
     template <typename ReadStream, typename Handler>
     static Status ParseArray(ReadStream& is, Handler& handler)
     {
-//        is.Expect('[');
-//        handler.StartArray();
-//        ParseWhitespace(is);
-//        if (is.Peek() == ']')
-//        {
-//
-//        }
+        is.Expect('[');
+        handler.StartArray();
+        ParseWhitespace(is);
+        if (is.Peek() == ']')
+        {
+            is.Next();
+            return Status::kOK;
+        }
+        Status status;
+        while (true)
+        {
+            status = ParseValue(is, handler);
+            if (status != Status::kOK)
+            {
+                return status;
+            }
+            ParseWhitespace(is);
+            switch (is.Next())
+            {
+                case ',':
+                    ParseWhitespace(is);
+                    break;
+                case ']':
+                    handler.EndArray();
+                    return Status::kOK;
+                default:
+                    return Status::kArrayMissCommaOrBracket;
+            }
+        }
+        return Status::kOK;
     }
 
     template <typename ReadStream, typename Handler>

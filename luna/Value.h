@@ -37,7 +37,7 @@ public:
 
     Value& operator=(const Value& rhs);
 
-    //FIXME: move ctor move assign pass by value ?
+    //FIXME: move semantic pass by value ?
     //NOTE: in our design only kString kArray kObject need move semantic
     Value(Value&& rhs) noexcept;
 
@@ -66,7 +66,8 @@ public:
 
     Value& SetBool(bool b)
     {
-        //NOTE:
+        //NOTE: effective C++ 3e Chinese version p.256
+        //NOTE: We do not need assert, because the value's ValueType could change
         this->~Value();
         return *new (this) Value(b);
     }
@@ -101,6 +102,20 @@ public:
         return *new (this) Value(sv);
     }
 
+    Value& SetArray()
+    {
+        this->~Value();
+        return *new (this) Value(ValueType::kArray);
+    }
+
+    template <typename T>
+    Value& AddArrayElement(T&& value)
+    {
+        assert(type_ == ValueType::kArray);
+        a_->data.emplace_back(std::forward<T>(value));
+        return a_->data.back();
+    }
+
 
 private:
     ValueType type_;
@@ -115,7 +130,7 @@ private:
         {}
 
         //NOTE: this class has non-trivial ctor, as a data member of union type may trigger compile time error
-
+        //NOTE: https://stackoverflow.com/questions/10693913/c11-anonymous-union-with-non-trivial-members
         ~SimpleRefCount()
         {
             assert(refs == 0);
@@ -141,16 +156,16 @@ private:
     };
 
     using StringWithRefCount = SimpleRefCount<std::vector<char>>;
-    using ArrayWIthRefCount = SimpleRefCount<std::vector<Value>>;
+    using ArrayWithRefCount = SimpleRefCount<std::vector<Value>>;
 
     //FIXME: std::variant ?
-    //NOTE: https://stackoverflow.com/questions/10693913/c11-anonymous-union-with-non-trivial-members
+
     union
     {
         bool b_;
         double d_;
         StringWithRefCount* s_;
-        ArrayWIthRefCount * a_;
+        ArrayWithRefCount* a_;
     };
 };
 

@@ -147,7 +147,7 @@ Value::Value(ValueType type) :
             s_ = new StringWithRefCount;
             break;
         case ValueType::kArray:
-            a_ = new ArrayWIthRefCount;
+            a_ = new ArrayWithRefCount;
             break;
     }
 }

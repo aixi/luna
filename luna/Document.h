@@ -46,9 +46,17 @@ public: //Handler
         AddValue(Value(sv));
     }
 
-    void StartArray();
+    void StartArray()
+    {
+        auto value = AddValue(Value(ValueType::kArray));
+        stack_.emplace_back(value);
+    }
 
-    void EndArray();
+    void EndArray()
+    {
+        assert(!stack_.empty() && stack_.back().GetType() == ValueType::kArray);
+        stack_.pop_back();
+    }
 
 private:
 
@@ -60,7 +68,37 @@ private:
 
     Value* AddValue(Value&& value);
 
-    std::vector<Value*> stack_;
+    bool see_value_;
+
+    struct Level
+    {
+        explicit Level(Value* value_) :
+            value(value_),
+            value_count(0)
+        {}
+
+        ValueType GetType() const
+        {
+            return value->GetType();
+        }
+
+        Value* LastValue()
+        {
+            if (GetType() == ValueType::kArray)
+            {
+                return &value->a_->data.back();
+            }
+            else
+            {
+                return &value->a_->data.back();
+            }
+        }
+
+        Value* value;
+        int value_count;
+    };
+
+    std::vector<Level> stack_;
 
 }; //class Document
 
