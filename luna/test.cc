@@ -120,16 +120,30 @@ BOOST_AUTO_TEST_CASE(testParseArray)
 {
     Document document;
     Parser::Status status;
-    std::vector<std::string> jsons = {
-        "[ \n\r ]",
-        "[ 0, 1 , 2, 3]",
-        "[0, [1, 2], 3]"
-    };
-    for (const std::string& json : jsons)
+    std::string json("[]");
+    status = document.Parse(json);
+    BOOST_CHECK(status == Parser::Status::kOK);
+    BOOST_CHECK(document.GetType() == ValueType::kArray);
+    BOOST_CHECK(document.GetArray().empty());
+
+    json = "[ 0,  1, 2,  3 ,  4 ]";
+    Document document1;
+    status = document1.Parse(json);
+    BOOST_CHECK(status == Parser::Status::kOK);
+    BOOST_CHECK(document1.GetType() == ValueType::kArray);
+    BOOST_CHECK_EQUAL(document1.GetArray().size(), 5);
+    for (int i = 0; i < 5; ++i)
     {
-        status = document.Parse(json);
-        BOOST_CHECK(status == Parser::Status::kOK);
+        BOOST_CHECK(document1[i].GetType() == ValueType::kNumber);
+        BOOST_CHECK_CLOSE(document1[i].GetDouble(), i, 0.1);
     }
+
+    json = "[\"hehe\", true, null, false, 0.0]";
+    Document document2;
+    status = document2.Parse(json);
+    BOOST_CHECK(status == Parser::Status::kOK);
+    BOOST_CHECK(document2.GetType() == ValueType::kArray);
+
 }
 
 BOOST_AUTO_TEST_SUITE_END()

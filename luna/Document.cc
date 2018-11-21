@@ -9,8 +9,7 @@ namespace luna
 {
 
 Document::Document() :
-    Value(),
-    see_value_(false)
+    Value()
 {}
 
 Value* Document::AddValue(Value&& value)
@@ -47,7 +46,8 @@ Value* Document::AddValue(Value&& value)
         auto& top = stack_.back();
         if (top.GetType() == ValueType::kArray)
         {
-            top.value->AddArrayElement(std::move(value));
+            (void) value;
+            top.value->AddArrayElement(value);
             return top.LastValue();
         }
         else

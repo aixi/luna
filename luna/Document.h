@@ -68,8 +68,6 @@ private:
 
     Value* AddValue(Value&& value);
 
-    bool see_value_;
-
     struct Level
     {
         explicit Level(Value* value_) :

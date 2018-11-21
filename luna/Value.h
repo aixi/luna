@@ -108,6 +108,24 @@ public:
         return *new (this) Value(ValueType::kArray);
     }
 
+    const std::vector<Value>& GetArray() const
+    {
+        assert(type_ == ValueType::kArray);
+        return a_->data;
+    }
+
+    const Value& operator[](size_t i) const
+    {
+        assert(type_ == ValueType::kArray);
+        return a_->data[i];
+    }
+
+    Value& operator[](size_t i)
+    {
+        assert(type_ == ValueType::kArray);
+        return a_->data[i];
+    }
+
     template <typename T>
     Value& AddArrayElement(T&& value)
     {

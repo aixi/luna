@@ -71,7 +71,10 @@ Value::Value(Value&& rhs) noexcept :
     {
         case ValueType::kNull:
         case ValueType::kBool:
+            b_ = rhs.b_;
+            break;
         case ValueType::kNumber:
+            d_ = rhs.d_;
             break;
         case ValueType::kString:
             s_ = rhs.s_;
