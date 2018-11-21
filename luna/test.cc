@@ -172,4 +172,17 @@ BOOST_AUTO_TEST_CASE(testParseArray)
 
 }
 
+BOOST_AUTO_TEST_CASE(testParseObject)
+{
+    Document document;
+    Parser::Status status;
+    std::string json("{\"n\" : null, \"t\" : true}");
+    status = document.Parse(json);
+    BOOST_CHECK(status == Parser::Status::kOK);
+    BOOST_CHECK(document.GetType() == ValueType::kObject);
+    BOOST_CHECK(document["n"].GetType() == ValueType::kNull);
+    BOOST_CHECK(document["t"].GetType() == ValueType::kBool);
+    BOOST_CHECK(document["t"].GetBool());
+}
+
 BOOST_AUTO_TEST_SUITE_END()

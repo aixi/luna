@@ -16,6 +16,7 @@ namespace luna
 {
 
 class Document;
+struct Member;
 
 enum class ValueType
 {
@@ -24,12 +25,16 @@ enum class ValueType
     kNumber,
     kString,
     kArray,
-//    kObject
+    kObject
 };
 
 class Value
 {
     friend class Document;
+
+public:
+    using ObjectIterator = std::vector<Member>::iterator;
+    using ConstObjectIterator = std::vector<Member>::const_iterator;
 
 public:
 
@@ -134,6 +139,22 @@ public:
         return a_->data.back();
     }
 
+    template <typename T>
+    Value& AddObjectElement(std::string_view key, T&& value)
+    {
+        return AddObjectElement(Value(key), Value(std::forward<T>(value)));
+    }
+
+    Value& AddObjectElement(Value&& key, Value&& value);
+
+    ObjectIterator FindObjectElement(std::string_view key);
+
+    ConstObjectIterator FindObjectElement(std::string_view key) const;
+
+    Value& operator[](std::string_view key);
+
+    const Value& operator[](std::string_view key) const;
+
 
 private:
     ValueType type_;
@@ -174,6 +195,7 @@ private:
 
     using StringWithRefCount = SimpleRefCount<std::vector<char>>;
     using ArrayWithRefCount = SimpleRefCount<std::vector<Value>>;
+    using ObjectWithRefCount = SimpleRefCount<std::vector<Member>>;
 
     //FIXME: std::variant ?
 
@@ -185,7 +207,24 @@ private:
         //NOTE: because this class has non-trivial ctor, so we use it's pointer as union member
         StringWithRefCount* s_;
         ArrayWithRefCount* a_;
+        ObjectWithRefCount* o_;
     };
+};
+
+struct Member
+{
+    Member(Value&& key_, Value&& value_) :
+        key(std::move(key_)),
+        value(std::move(value_))
+    {}
+
+    Member(std::string_view key_, Value&& value_) :
+        key(key_),
+        value(std::move(value_))
+    {}
+
+    Value key;
+    Value value;
 };
 
 } //namespace luna

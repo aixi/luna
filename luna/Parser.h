@@ -32,7 +32,10 @@ public:
         kInvalidUnicodeHex,
         kRootNotSingular,
         kDoubleTooBig,
-        kArrayMissCommaOrBracket
+        kArrayMissCommaOrBracket,
+        kObjectMissCommaOrCurlyBracket,
+        kObjectMissKey,
+        kObjectMissColon
     };
 
 private:
@@ -164,7 +167,7 @@ private:
     static void EncodeUTF8(std::string& buffer, unsigned u);
 
     template <typename ReadStream, typename Handler>
-    static Status ParseString(ReadStream& is, Handler& handler)
+    static Status ParseString(ReadStream& is, Handler& handler, bool is_key = false)
     {
         is.Expect('\"');
         char ch;
@@ -175,7 +178,14 @@ private:
             switch (ch = is.Next())
             {
                 case '\"':
-                    handler.String(buffer);
+                    if (is_key)
+                    {
+                        handler.Key(buffer);
+                    }
+                    else
+                    {
+                        handler.String(buffer);
+                    }
                     return Status::kOK;
                 case '\\':
                     switch (ch = is.Next())
@@ -281,14 +291,54 @@ private:
                     return Status::kArrayMissCommaOrBracket;
             }
         }
-        return Status::kOK;
     }
 
     template <typename ReadStream, typename Handler>
     static Status ParseObject(ReadStream& is, Handler& handler)
     {
-        //TODO
-        return Status::kOK;
+        is.Expect('{');
+        handler.StartObject();
+        ParseWhitespace(is);
+        if (is.Peek() == '}')
+        {
+            is.Next();
+            return Status::kOK;
+        }
+        Status status;
+        while (true)
+        {
+            if (is.Peek() != '\"')
+            {
+                return Status::kObjectMissKey;
+            }
+            status = ParseString(is, handler, true);
+            if (status != Status::kOK)
+            {
+                return status;
+            }
+            ParseWhitespace(is);
+            if (is.Next() != ':')
+            {
+                return Status::kObjectMissColon;
+            }
+            ParseWhitespace(is);
+            status = ParseValue(is, handler);
+            if (status != Status::kOK)
+            {
+                return status;
+            }
+            switch (is.Next())
+            {
+                case ',':
+                    ParseWhitespace(is);
+                    break;
+                case '}':
+                    handler.EndObject();
+                    return Status::kOK;
+                default:
+                    return Status::kObjectMissCommaOrCurlyBracket;
+            }
+        }
     }
 
     template <typename ReadStream, typename Handler>

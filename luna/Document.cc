@@ -35,7 +35,9 @@ Value* Document::AddValue(Value&& value)
                 a_ = value.a_;
                 value.a_ = nullptr;
                 break;
-            default:
+            case ValueType::kObject:
+                o_ = value.o_;
+                value.o_ = nullptr;
                 break;
         }
         value.type_ = ValueType::kNull;
@@ -43,7 +45,7 @@ Value* Document::AddValue(Value&& value)
     }
     else
     {
-        auto& top = stack_.back();
+        Level& top = stack_.back();
         if (top.GetType() == ValueType::kArray)
         {
             (void) value;
@@ -52,7 +54,21 @@ Value* Document::AddValue(Value&& value)
         }
         else
         {
-            return top.LastValue();
+            assert(top.GetType() == ValueType::kObject);
+            if (top.value_count % 2 == 0)
+            {
+                assert(value.type_ == ValueType::kString);
+                ++top.value_count;
+                key_ = std::move(value);
+                return &key_;
+            }
+            else
+            {
+                top.value->AddObjectElement(std::move(key_), std::move(value));
+                ++top.value_count;
+                return top.LastValue();
+            }
+
         }
     }
 }

@@ -3,6 +3,7 @@
 //
 
 #include <luna/Value.h>
+#include <algorithm>
 
 namespace luna
 {
@@ -26,6 +27,10 @@ Value::Value(const Value& rhs) :
         case ValueType::kArray:
             a_ = rhs.a_;
             a_->IncrAndGet();
+            break;
+        case ValueType::kObject:
+            o_ = rhs.o_;
+            o_->IncrAndGet();
             break;
     }
 }
@@ -57,6 +62,10 @@ Value& Value::operator=(const Value& rhs)
             a_ = rhs.a_;
             a_->IncrAndGet();
             break;
+        case ValueType::kObject:
+            o_ = rhs.o_;
+            o_->IncrAndGet();
+            break;
     }
     return *this;
 }
@@ -83,6 +92,11 @@ Value::Value(Value&& rhs) noexcept :
         case ValueType::kArray:
             a_ = rhs.a_;
             rhs.a_ = nullptr;
+            break;
+        case ValueType::kObject:
+            o_ = rhs.o_;
+            rhs.o_ = nullptr;
+            break;
     }
 }
 
@@ -109,6 +123,10 @@ Value& Value::operator=(Value&& rhs) noexcept
             a_ = rhs.a_;
             rhs.a_ = nullptr;
             break;
+        case ValueType::kObject:
+            o_ = rhs.o_;
+            rhs.o_ = nullptr;
+            break;
     }
     return *this;
 }
@@ -133,6 +151,12 @@ Value::~Value()
                 delete a_;
             }
             break;
+        case ValueType::kObject:
+            if (o_->DecrAndGet() == 0)
+            {
+                delete o_;
+            }
+            break;
     }
 }
 
@@ -152,6 +176,9 @@ Value::Value(ValueType type) :
         case ValueType::kArray:
             a_ = new ArrayWithRefCount;
             break;
+        case ValueType::kObject:
+            o_ = new ObjectWithRefCount;
+            break;
     }
 }
 
@@ -169,6 +196,47 @@ Value::Value(std::string_view sv) :
         type_(ValueType::kString),
         s_(new StringWithRefCount(sv.begin(), sv.end()))
 {}
+
+Value& Value::AddObjectElement(luna::Value&& key, luna::Value&& value)
+{
+    //duplicate key is not allowed
+    o_->data.emplace_back(std::move(key), std::move(value));
+    return o_->data.back().value;
+}
+
+Value::ObjectIterator Value::FindObjectElement(std::string_view key)
+{
+    assert(type_ == ValueType::kObject);
+    return std::find_if(o_->data.begin(), o_->data.end(), [key](const Member& m){
+        return m.key.GetStringView() == key;
+    });
+}
+
+Value::ConstObjectIterator Value::FindObjectElement(std::string_view key) const
+{
+    assert(type_ == ValueType::kObject);
+    return std::find_if(o_->data.begin(), o_->data.end(), [key](const Member& m){
+        return m.key.GetStringView() == key;
+    });
+}
+
+Value& Value::operator[](std::string_view key)
+{
+    return const_cast<Value&>(static_cast<const Value&>(*this)[key]);
+}
+
+const Value& Value::operator[](std::string_view key) const
+{
+    assert(type_ == ValueType::kObject);
+    auto iter = FindObjectElement(key);
+    if (iter != o_->data.end())
+    {
+        return iter->value;
+    }
+    assert(false && "key not exist");
+    static Value fake(ValueType::kNull);
+    return fake;
+}
 
 
 } //namespace luna

@@ -46,15 +46,30 @@ public: //Handler
         AddValue(Value(sv));
     }
 
+    void Key(std::string_view k)
+    {
+        AddValue(Value(k));
+    }
+
     void StartArray()
     {
-        auto value = AddValue(Value(ValueType::kArray));
-        stack_.emplace_back(value);
+        stack_.emplace_back(AddValue(Value(ValueType::kArray)));
     }
 
     void EndArray()
     {
         assert(!stack_.empty() && stack_.back().GetType() == ValueType::kArray);
+        stack_.pop_back();
+    }
+
+    void StartObject()
+    {
+        stack_.emplace_back(AddValue(Value(ValueType::kObject)));
+    }
+
+    void EndObject()
+    {
+        assert(!stack_.empty() && stack_.back().GetType() == ValueType::kObject);
         stack_.pop_back();
     }
 
@@ -88,7 +103,7 @@ private:
             }
             else
             {
-                return &value->a_->data.back();
+                return &value->o_->data.back().value;
             }
         }
 
@@ -97,6 +112,7 @@ private:
     };
 
     std::vector<Level> stack_;
+    Value key_;
 
 }; //class Document
 
