@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE(testParseArray)
     BOOST_CHECK(document.GetType() == ValueType::kArray);
     BOOST_CHECK(document.GetArray().empty());
 
-    json = "[ 0,  1, 2,  3 ,  4 ]";
+    json = "[ 0\n\r,  \r1\t, 2,  3 ,  4 ]";
     Document document1;
     status = document1.Parse(json);
     BOOST_CHECK(status == Parser::Status::kOK);
@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE(testParseArray)
     for (int i = 0; i < 5; ++i)
     {
         BOOST_CHECK(document1[i].GetType() == ValueType::kNumber);
-        BOOST_CHECK_CLOSE(document1[i].GetDouble(), i, 0.1);
+        BOOST_CHECK_CLOSE(document1[i].GetDouble(), i, 0.000001);
     }
 
     json = "[\"hehe\", true, null, false, 0.0]";
@@ -143,6 +143,32 @@ BOOST_AUTO_TEST_CASE(testParseArray)
     status = document2.Parse(json);
     BOOST_CHECK(status == Parser::Status::kOK);
     BOOST_CHECK(document2.GetType() == ValueType::kArray);
+    BOOST_CHECK(document2[0].GetType() == ValueType::kString);
+    BOOST_CHECK_EQUAL(document2[0].GetString(), "hehe");
+    BOOST_CHECK(document2[1].GetType() == ValueType::kBool);
+    BOOST_CHECK(document2[1].GetBool());
+    BOOST_CHECK(document2[2].GetType() == ValueType::kNull);
+    BOOST_CHECK(document2[3].GetType() == ValueType::kBool);
+    BOOST_CHECK(!document2[3].GetBool());
+    BOOST_CHECK(document2[4].GetType() == ValueType::kNumber);
+    BOOST_CHECK_CLOSE(document2[4].GetDouble(), 0.0, 0.000001);
+
+    json = "[0, [1, [2]]]";
+    Document document3;
+    status = document3.Parse(json);
+    BOOST_CHECK(status == Parser::Status::kOK);
+    BOOST_CHECK(document3.GetType() == ValueType::kArray);
+    BOOST_CHECK_EQUAL(document3.GetArray().size(), 2);
+    BOOST_CHECK(document3[0].GetType() == ValueType::kNumber);
+    BOOST_CHECK_CLOSE(document3[0].GetDouble(), 0.0, 0.000001);
+    BOOST_CHECK(document3[1].GetType() == ValueType::kArray);
+    BOOST_CHECK_EQUAL(document3[1].GetArray().size(), 2);
+    BOOST_CHECK(document3[1][0].GetType() == ValueType::kNumber);
+    BOOST_CHECK_CLOSE(document3[1][0].GetDouble(), 1, 0.000001);
+    BOOST_CHECK(document3[1][1].GetType() == ValueType::kArray);
+    BOOST_CHECK_EQUAL(document3[1][1].GetArray().size(), 1);
+    BOOST_CHECK(document3[1][1][0].GetType() == ValueType::kNumber);
+    BOOST_CHECK_CLOSE(document3[1][1][0].GetDouble(), 2, 0.000001);
 
 }
 

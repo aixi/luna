@@ -147,7 +147,6 @@ private:
             data(std::forward<Args>(args)...)
         {}
 
-        //NOTE: this class has non-trivial ctor, as a data member of union type may trigger compile time error
         //NOTE: https://stackoverflow.com/questions/10693913/c11-anonymous-union-with-non-trivial-members
         ~SimpleRefCount()
         {
@@ -182,6 +181,8 @@ private:
     {
         bool b_;
         double d_;
+        //NOTE: put the object of class SimpleRefCount as a data member of union will lead compile error
+        //NOTE: because this class has non-trivial ctor, so we use it's pointer as union member
         StringWithRefCount* s_;
         ArrayWithRefCount* a_;
     };
