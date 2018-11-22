@@ -183,6 +183,17 @@ BOOST_AUTO_TEST_CASE(testParseObject)
     BOOST_CHECK(document["n"].GetType() == ValueType::kNull);
     BOOST_CHECK(document["t"].GetType() == ValueType::kBool);
     BOOST_CHECK(document["t"].GetBool());
+
+    json = ("{\"0\" : 0, \"1\" : 1}");
+    Document document1;
+    status = document1.Parse(json);
+    BOOST_CHECK(status == Parser::Status::kOK);
+    BOOST_CHECK(document1.GetType() == ValueType::kObject);
+    BOOST_CHECK(document1["0"].GetType() == ValueType::kNumber);
+    BOOST_CHECK_CLOSE(document1["0"].GetDouble(), 0, 0.000001);
+    BOOST_CHECK(document1["1"].GetType() == ValueType::kNumber);
+    BOOST_CHECK_CLOSE(document1["1"].GetDouble(), 1, 0.000001);
+
 }
 
 BOOST_AUTO_TEST_SUITE_END()
