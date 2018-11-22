@@ -41,13 +41,14 @@ include_directories("${PROJECT_SOURCE_DIR}")
 set(SOURCE_FILES
         luna/Value.h
         luna/Value.cc
-        luna/StringReadStream.h
         luna/Parser.h
         luna/Parser.cc
         luna/Generator.h
         luna/Generator.cc
         luna/Document.h
-        luna/Document.cc)
+        luna/Document.cc
+        luna/StringInputStream.h
+        luna/StringOutputStream.h)
 
 add_library(luna STATIC ${SOURCE_FILES})
 

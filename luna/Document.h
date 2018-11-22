@@ -7,7 +7,7 @@
 
 #include <luna/Value.h>
 #include <luna/Parser.h>
-#include <luna/StringReadStream.h>
+#include <luna/StringInputStream.h>
 
 namespace luna
 {
@@ -20,7 +20,7 @@ public:
 
     Parser::Status Parse(std::string_view json)
     {
-        StringReadStream is(json);
+        StringInputStream is(json);
         return ParseStream(is);
     }
 
@@ -72,6 +72,8 @@ public: //Handler
         assert(!stack_.empty() && stack_.back().GetType() == ValueType::kObject);
         stack_.pop_back();
     }
+
+
 
 private:
 

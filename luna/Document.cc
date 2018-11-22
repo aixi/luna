@@ -73,4 +73,5 @@ Value* Document::AddValue(Value&& value)
     }
 }
 
+
 } //namespace luna

@@ -11,12 +11,12 @@
 namespace luna
 {
 
-class StringReadStream
+class StringInputStream
 {
 public:
     using Iterator = std::string_view::const_iterator;
 
-    explicit StringReadStream(std::string_view json) :
+    explicit StringInputStream(std::string_view json) :
         json_(json),
         iter_(json_.begin())
     {}
@@ -58,8 +58,8 @@ public:
     }
 
     //noncopyable
-    StringReadStream(const StringReadStream&) = delete;
-    StringReadStream& operator=(const StringReadStream&) = delete;
+    StringInputStream(const StringInputStream&) = delete;
+    StringInputStream& operator=(const StringInputStream&) = delete;
 
 private:
     std::string_view json_;

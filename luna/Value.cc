@@ -4,6 +4,7 @@
 
 #include <luna/Value.h>
 #include <algorithm>
+#include "Value.h"
 
 namespace luna
 {
@@ -237,6 +238,8 @@ const Value& Value::operator[](std::string_view key) const
     static Value fake(ValueType::kNull);
     return fake;
 }
+
+
 
 
 } //namespace luna

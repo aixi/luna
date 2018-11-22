@@ -39,8 +39,8 @@ public:
     };
 
 private:
-    template <typename ReadStream>
-    static void ParseWhitespace(ReadStream& is)
+    template <typename InputStream>
+    static void ParseWhitespace(InputStream& is)
     {
         while (is.HasNext())
         {
@@ -56,8 +56,8 @@ private:
         }
     }
 
-    template <typename ReadStream, typename Handler>
-    static Status ParseLiteral(ReadStream& is, Handler& handler, const char* literal, ValueType type)
+    template <typename InputStream, typename Handler>
+    static Status ParseLiteral(InputStream& is, Handler& handler, const char* literal, ValueType type)
     {
         char ch = is.Peek();
         is.Expect(*literal++);
@@ -84,8 +84,8 @@ private:
 
     }
 
-    template <typename ReadStream, typename Handler>
-    static Status ParseNumber(ReadStream& is, Handler& handler)
+    template <typename InputStream, typename Handler>
+    static Status ParseNumber(InputStream& is, Handler& handler)
     {
         auto start = is.GetIter();
         if (is.Peek() == '-')
@@ -166,8 +166,8 @@ private:
 
     static void EncodeUTF8(std::string& buffer, unsigned u);
 
-    template <typename ReadStream, typename Handler>
-    static Status ParseString(ReadStream& is, Handler& handler, bool is_key = false)
+    template <typename InputStream, typename Handler>
+    static Status ParseString(InputStream& is, Handler& handler, bool is_key = false)
     {
         is.Expect('\"');
         char ch;
@@ -259,8 +259,8 @@ private:
         return Status::kStringMissingQuotationMark;
     }
 
-    template <typename ReadStream, typename Handler>
-    static Status ParseArray(ReadStream& is, Handler& handler)
+    template <typename InputStream, typename Handler>
+    static Status ParseArray(InputStream& is, Handler& handler)
     {
         is.Expect('[');
         handler.StartArray();
@@ -293,8 +293,8 @@ private:
         }
     }
 
-    template <typename ReadStream, typename Handler>
-    static Status ParseObject(ReadStream& is, Handler& handler)
+    template <typename InputStream, typename Handler>
+    static Status ParseObject(InputStream& is, Handler& handler)
     {
         is.Expect('{');
         handler.StartObject();
@@ -341,8 +341,8 @@ private:
         }
     }
 
-    template <typename ReadStream, typename Handler>
-    static Status ParseValue(ReadStream& is, Handler& handler)
+    template <typename InputStream, typename Handler>
+    static Status ParseValue(InputStream& is, Handler& handler)
     {
         if (!is.HasNext())
         {
@@ -368,8 +368,8 @@ private:
     }
 
 public:
-    template <typename ReadStream, typename Handler>
-    static Status Parse(ReadStream& is, Handler& handler)
+    template <typename InputStream, typename Handler>
+    static Status Parse(InputStream& is, Handler& handler)
     {
         ParseWhitespace(is);
         Status status = ParseValue(is, handler);

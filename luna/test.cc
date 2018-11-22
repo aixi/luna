@@ -11,6 +11,8 @@
 #include <vector>
 #include <string_view>
 #include <luna/Parser.h>
+#include <luna/StringOutputStream.h>
+#include <luna/Generator.h>
 #include <luna/Document.h>
 
 using namespace luna;
@@ -221,6 +223,23 @@ BOOST_AUTO_TEST_CASE(testParseObject)
     BOOST_CHECK_CLOSE(document2["a"][1].GetDouble(), 1, 0.000001);
     BOOST_CHECK(document2["o"].GetType() == ValueType::kObject);
     BOOST_CHECK(document2["o"]["n"].GetType() == ValueType::kNull);
+}
+
+
+BOOST_AUTO_TEST_SUITE_END()
+
+
+BOOST_AUTO_TEST_SUITE(testGeneratorRoundtrip)
+
+BOOST_AUTO_TEST_CASE(testGenerateLiterial)
+{
+    std::string json(" null ");
+    Document document;
+    document.Parse(json);
+    StringOutputStream os;
+    Generator generator(os);
+    document.Generate(generator);
+    BOOST_CHECK_EQUAL(os.GetStringView(), "null");
 }
 
 BOOST_AUTO_TEST_SUITE_END()

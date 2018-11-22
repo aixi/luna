@@ -28,6 +28,7 @@ enum class ValueType
     kObject
 };
 
+
 class Value
 {
     friend class Document;
@@ -43,7 +44,7 @@ public:
     Value& operator=(const Value& rhs);
 
     //FIXME: move semantic pass by value ?
-    //NOTE: in our design only kString kArray kObject need move semantic
+
     Value(Value&& rhs) noexcept;
 
     Value& operator=(Value&& rhs) noexcept;
@@ -113,10 +114,17 @@ public:
         return *new (this) Value(ValueType::kArray);
     }
 
+
     const std::vector<Value>& GetArray() const
     {
         assert(type_ == ValueType::kArray);
         return a_->data;
+    }
+
+    const std::vector<Member>& GetObject() const
+    {
+        assert(type_ == ValueType::kObject);
+        return o_->data;
     }
 
     const Value& operator[](size_t i) const
@@ -155,6 +163,8 @@ public:
 
     const Value& operator[](std::string_view key) const;
 
+    template <typename Generator>
+    void Generate(Generator& generator) const;
 
 private:
     ValueType type_;
@@ -226,6 +236,49 @@ struct Member
     Value key;
     Value value;
 };
+
+template <typename Generator>
+void Value::Generate(Generator& generator) const
+{
+    switch (type_)
+    {
+        case ValueType::kNull:
+            generator.Null();
+            break;
+        case ValueType::kBool:
+            generator.Bool(b_);
+            break;
+        case ValueType::kNumber:
+            generator.Double(d_);
+            break;
+        case ValueType::kString:
+            generator.String(GetStringView());
+            break;
+        case ValueType::kArray:
+        {
+            generator.StartArray();
+            const std::vector<Value>& array = GetArray();
+            for (const Value& value : array)
+            {
+                value.Generate(generator);
+            }
+            generator.EndObject();
+        }
+            break;
+        case ValueType::kObject:
+        {
+            generator.StartObject();
+            const std::vector<Member>& object = GetObject();
+            for (const Member& m : object)
+            {
+                generator.Key(m.key.GetStringView());
+                m.value.Generate(generator);
+            }
+            generator.EndObject();
+        }
+            break;
+    }
+}
 
 } //namespace luna
 
