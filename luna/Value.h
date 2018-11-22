@@ -262,7 +262,7 @@ void Value::Generate(Generator& generator) const
             {
                 value.Generate(generator);
             }
-            generator.EndObject();
+            generator.EndArray();
         }
             break;
         case ValueType::kObject:

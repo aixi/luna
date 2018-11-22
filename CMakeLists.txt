@@ -44,7 +44,6 @@ set(SOURCE_FILES
         luna/Parser.h
         luna/Parser.cc
         luna/Generator.h
-        luna/Generator.cc
         luna/Document.h
         luna/Document.cc
         luna/StringInputStream.h

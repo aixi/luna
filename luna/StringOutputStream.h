@@ -32,7 +32,6 @@ public:
         return std::string_view(buffer_.data(), buffer_.size());
     }
 
-
     StringOutputStream(const StringOutputStream&) = delete;
     StringOutputStream& operator=(const StringOutputStream&) = delete;
 

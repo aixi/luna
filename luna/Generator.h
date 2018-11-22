@@ -171,13 +171,13 @@ void Generator<T>::Prefix()
     }
     else //in object
     {
-        if (top.value_count % 2 == 0 && top.value_count > 0)
-        {
-            os_.Put(',');
-        }
-        else
+        if (top.value_count % 2 == 1)
         {
             os_.Put(':');
+        }
+        else if (top.value_count > 0)
+        {
+            os_.Put(',');
         }
     }
     ++top.value_count;

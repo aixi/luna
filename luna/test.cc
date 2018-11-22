@@ -7,7 +7,6 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
-
 #include <vector>
 #include <string_view>
 #include <luna/Parser.h>
@@ -231,15 +230,99 @@ BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE(testGeneratorRoundtrip)
 
+#define TEST_ROUNDTRIP(json) do {\
+    Document document; \
+    Parser::Status status = document.Parse(json); \
+    BOOST_CHECK(status == Parser::Status::kOK); \
+    StringOutputStream os; \
+    Generator<StringOutputStream> generator(os); \
+    document.Generate(generator); \
+    BOOST_CHECK_EQUAL(json, os.GetStringView()); \
+} while(false)
+
 BOOST_AUTO_TEST_CASE(testGenerateLiterial)
 {
     std::string json(" null ");
     Document document;
     document.Parse(json);
     StringOutputStream os;
-    Generator generator(os);
+    Generator<StringOutputStream> generator(os);
     document.Generate(generator);
     BOOST_CHECK_EQUAL(os.GetStringView(), "null");
+
+    json = "true";
+    Document document1;
+    document1.Parse(json);
+    StringOutputStream os1;
+    Generator<StringOutputStream> generator1(os1);
+    document1.Generate(generator1);
+    BOOST_CHECK_EQUAL(os1.GetStringView(), "true");
+
+    json = "false";
+    Document document2;
+    document2.Parse(json);
+    StringOutputStream os2;
+    Generator<StringOutputStream> generator2(os2);
+    document2.Generate(generator2);
+    BOOST_CHECK_EQUAL(os2.GetStringView(), "false");
+
+}
+
+BOOST_AUTO_TEST_CASE(testGenerateDouble)
+{
+    //FIXME: test failed when using sprintf float point number representation, using gtest ?
+    std::vector<std::string> numbers = {
+            "0",
+            "-0",
+            "-0.0",
+            "1",
+            "-1",
+            "1.5",
+            "-1.5",
+            "3.1415",
+            "1E10",
+            "1e10",
+            "1E+10",
+            "1E-10",
+            "-1E10",
+            "-1e10",
+            "-1E-10",
+            "1.234E+10",
+            "1.234E-10"
+    };
+    for (size_t i = 0; i < numbers.size(); ++i)
+    {
+        Document document;
+        document.Parse(numbers[i]);
+        StringOutputStream os;
+        Generator<StringOutputStream> generator(os);
+        document.Generate(generator);
+        BOOST_CHECK_EQUAL(os.GetStringView(), numbers[i]);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testGenerateString)
+{
+    TEST_ROUNDTRIP("\"\"");
+    TEST_ROUNDTRIP("\"hello\\nworld\"");
+    TEST_ROUNDTRIP("\" \\\" \\\\ / \\b \\f \\n \\r \\t \"");
+    TEST_ROUNDTRIP("\"hello\\u0000world\"");
+}
+
+BOOST_AUTO_TEST_CASE(testGenerateArray)
+{
+    TEST_ROUNDTRIP("[]");
+    TEST_ROUNDTRIP("[1.0,2.0,3.0]");
+    TEST_ROUNDTRIP("[null,true,false]");
+    TEST_ROUNDTRIP("[false,true,\"abc\",[1.0,2.0,3.0]]");
+    TEST_ROUNDTRIP("[null,{\"n\":null,\"t\":true}]");
+}
+
+BOOST_AUTO_TEST_CASE(testGenerateObject)
+{
+    TEST_ROUNDTRIP("{}");
+    TEST_ROUNDTRIP("{\"n\":null,\"t\":true,\"f\":false}");
+    TEST_ROUNDTRIP("{\"a\":[null,true,{\"f\":false,\"t\":true}]}");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
