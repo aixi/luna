@@ -170,6 +170,18 @@ BOOST_AUTO_TEST_CASE(testParseArray)
     BOOST_CHECK(document3[1][1][0].GetType() == ValueType::kNumber);
     BOOST_CHECK_CLOSE(document3[1][1][0].GetDouble(), 2, 0.000001);
 
+    json = "[0, {\"1\" : 1, \"t\" : true}]";
+    Document document4;
+    status = document4.Parse(json);
+    (void) status;
+    BOOST_CHECK(status == Parser::Status::kOK);
+    BOOST_CHECK(document4.GetType() == ValueType::kArray);
+    BOOST_CHECK_EQUAL(document4.GetArray().size(), 2);
+    BOOST_CHECK(document4[0].GetType() == ValueType::kNumber);
+    BOOST_CHECK_CLOSE(document4[0].GetDouble(), 0, 0.000001);
+    BOOST_CHECK(document4[1].GetType() == ValueType::kObject);
+    BOOST_CHECK(document4[1]["t"].GetType() == ValueType::kBool);
+    BOOST_CHECK(document4[1]["t"].GetBool());
 }
 
 BOOST_AUTO_TEST_CASE(testParseObject)
@@ -184,7 +196,7 @@ BOOST_AUTO_TEST_CASE(testParseObject)
     BOOST_CHECK(document["t"].GetType() == ValueType::kBool);
     BOOST_CHECK(document["t"].GetBool());
 
-    json = ("{\"0\" : 0, \"1\" : 1}");
+    json = "{\"0\" : 0, \"1\" : 1}";
     Document document1;
     status = document1.Parse(json);
     BOOST_CHECK(status == Parser::Status::kOK);
@@ -194,6 +206,21 @@ BOOST_AUTO_TEST_CASE(testParseObject)
     BOOST_CHECK(document1["1"].GetType() == ValueType::kNumber);
     BOOST_CHECK_CLOSE(document1["1"].GetDouble(), 1, 0.000001);
 
+    json = "{\"s\" : \"string\", \"a\": [0, 1], \"o\" : {\"n\" : null}}";
+    Document document2;
+    status = document2.Parse(json);
+    BOOST_CHECK(status == Parser::Status::kOK);
+    BOOST_CHECK(document2.GetType() == ValueType::kObject);
+    BOOST_CHECK(document2["s"].GetType() == ValueType::kString);
+    BOOST_CHECK_EQUAL(document2["s"].GetStringView(), "string");
+    BOOST_CHECK(document2["a"].GetType() == ValueType::kArray);
+    BOOST_CHECK_EQUAL(document2["a"].GetArray().size(), 2);
+    BOOST_CHECK(document2["a"][0].GetType() == ValueType::kNumber);
+    BOOST_CHECK_CLOSE(document2["a"][0].GetDouble(), 0, 0.000001);
+    BOOST_CHECK(document2["a"][1].GetType() == ValueType::kNumber);
+    BOOST_CHECK_CLOSE(document2["a"][1].GetDouble(), 1, 0.000001);
+    BOOST_CHECK(document2["o"].GetType() == ValueType::kObject);
+    BOOST_CHECK(document2["o"]["n"].GetType() == ValueType::kNull);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
