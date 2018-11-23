@@ -223,6 +223,33 @@ BOOST_AUTO_TEST_CASE(testParseObject)
     BOOST_CHECK_CLOSE(document2["a"][1].GetDouble(), 1, 0.000001);
     BOOST_CHECK(document2["o"].GetType() == ValueType::kObject);
     BOOST_CHECK(document2["o"]["n"].GetType() == ValueType::kNull);
+
+    json = "[{}]";
+    Document document3;
+    status = document3.Parse(json);
+    BOOST_CHECK(status == Parser::Status::kOK);
+    BOOST_CHECK(document3.GetType() == ValueType::kArray);
+    BOOST_CHECK_EQUAL(document3.GetArray().size(), 1);
+    BOOST_CHECK(document3[0].GetType() == ValueType::kObject);
+    BOOST_CHECK_EQUAL(document3[0].GetObject().size(), 0);
+
+    json = "{\"a\":[]}";
+    Document document4;
+    status = document4.Parse(json);
+    BOOST_CHECK(status == Parser::Status::kOK);
+
+    json = "[{}, [{}]]";
+    Document document5;
+    status = document5.Parse(json);
+    BOOST_CHECK(status == Parser::Status::kOK);
+    BOOST_CHECK(document5.GetType() == ValueType::kArray);
+    BOOST_CHECK_EQUAL(document5.GetArray().size(), 2);
+    BOOST_CHECK(document5[0].GetType() == ValueType::kObject);
+    BOOST_CHECK_EQUAL(document5[0].GetObject().size() , 0);
+    BOOST_CHECK(document5[1].GetType() == ValueType::kArray);
+    BOOST_CHECK_EQUAL(document5[1].GetArray().size(), 1);
+    BOOST_CHECK(document5[1][0].GetType() == ValueType::kObject);
+    BOOST_CHECK_EQUAL(document5[1][0].GetObject().size(), 0);
 }
 
 
@@ -271,7 +298,7 @@ BOOST_AUTO_TEST_CASE(testGenerateLiterial)
 
 BOOST_AUTO_TEST_CASE(testGenerateDouble)
 {
-    //FIXME: test failed when using sprintf float point number representation, using gtest ?
+    //FIXME: roundtrip test failed when using sprintf float point number representation, using gtest ?
     std::vector<std::string> numbers = {
             "0",
             "-0",

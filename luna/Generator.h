@@ -103,7 +103,8 @@ public:
 
     void EndArray()
     {
-        assert(!stack_.empty() && stack_.back().is_in_array);
+        assert(!stack_.empty());
+        assert(stack_.back().is_in_array);
         stack_.pop_back();
         os_.Put(']');
     }
@@ -125,7 +126,8 @@ public:
 
     void EndObject()
     {
-        assert(!stack_.empty() && !stack_.back().is_in_array);
+        assert(!stack_.empty());
+        assert(!stack_.back().is_in_array);
         stack_.pop_back();
         os_.Put('}');
     }

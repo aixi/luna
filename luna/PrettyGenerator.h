@@ -71,7 +71,7 @@ public:
     {
         --indent_level_;
         Indent();
-        generator_.StartObject();
+        generator_.EndObject();
     }
 
     PrettyGenerator(const PrettyGenerator&) = delete;
@@ -88,7 +88,6 @@ private:
     {
         os_.Put(indent_, indent_level_);
     }
-
 
 
     void Indent()

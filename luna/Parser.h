@@ -268,6 +268,7 @@ private:
         if (is.Peek() == ']')
         {
             is.Next();
+            handler.EndArray();
             return Status::kOK;
         }
         Status status;
@@ -302,6 +303,7 @@ private:
         if (is.Peek() == '}')
         {
             is.Next();
+            handler.EndObject();
             return Status::kOK;
         }
         Status status;

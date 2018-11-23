@@ -11,9 +11,10 @@ int main()
 {
     StringOutputStream os;
     PrettyGenerator<StringOutputStream> generator(os);
-    std::string_view json = "{\"a\" : [null, true, false,{\"a\":[null, true, false]}]}";
+    std::string_view json = "[{}, [{}]]";
     Document document;
-    document.Parse(json);
+    Parser::Status status = document.Parse(json);
+    (void) status;
     document.Generate(generator);
     std::cout << os.GetStringView();
     return 0;
