@@ -12,6 +12,7 @@
 #include <luna/Parser.h>
 #include <luna/StringOutputStream.h>
 #include <luna/Generator.h>
+#include <luna/PrettyGenerator.h>
 #include <luna/Document.h>
 
 using namespace luna;
@@ -323,6 +324,18 @@ BOOST_AUTO_TEST_CASE(testGenerateObject)
     TEST_ROUNDTRIP("{}");
     TEST_ROUNDTRIP("{\"n\":null,\"t\":true,\"f\":false}");
     TEST_ROUNDTRIP("{\"a\":[null,true,{\"f\":false,\"t\":true}]}");
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+
+BOOST_AUTO_TEST_SUITE(testPrettyGenerator)
+
+BOOST_AUTO_TEST_CASE(testIndent)
+{
+    StringOutputStream os;
+    PrettyGenerator<StringOutputStream> pg(os);
+    (void) pg;
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -47,11 +47,12 @@ set(SOURCE_FILES
         luna/Document.h
         luna/Document.cc
         luna/StringInputStream.h
-        luna/StringOutputStream.h)
+        luna/StringOutputStream.h
+        luna/PrettyGenerator.h)
 
 add_library(luna STATIC ${SOURCE_FILES})
 
-add_executable(luna_simple example/main.cpp)
+add_executable(luna_simple example/main.cc)
 target_link_libraries(luna_simple luna)
 
 add_executable(luna_unittest luna/test.cc)

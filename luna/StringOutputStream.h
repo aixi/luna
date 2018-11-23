@@ -27,6 +27,14 @@ public:
         buffer_.insert(buffer_.end(), str.begin(), str.end());
     }
 
+    void Put(std::string_view str, int repeat)
+    {
+        for (int i = 0; i < repeat; ++i)
+        {
+            Put(str);
+        }
+    }
+
     std::string_view GetStringView() const
     {
         return std::string_view(buffer_.data(), buffer_.size());
