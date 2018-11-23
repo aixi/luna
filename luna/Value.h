@@ -44,7 +44,7 @@ public:
     Value& operator=(const Value& rhs);
 
     //FIXME: move semantic pass by value ?
-
+    //NOTE: effective modern C++ item 42
     Value(Value&& rhs) noexcept;
 
     Value& operator=(Value&& rhs) noexcept;
