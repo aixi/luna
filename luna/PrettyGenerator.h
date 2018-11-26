@@ -10,6 +10,8 @@
 namespace luna
 {
 
+//FIXME: this class will generate ill indent json
+
 template <typename OutputStream>
 class PrettyGenerator
 {
