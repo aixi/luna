@@ -4,7 +4,6 @@
 
 #include <luna/Value.h>
 #include <algorithm>
-#include "Value.h"
 
 namespace luna
 {
