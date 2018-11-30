@@ -44,7 +44,7 @@ public:
     Value& operator=(const Value& rhs);
 
     //FIXME: move semantic pass by value ?
-    //NOTE: effective modern C++ item 42
+    //NOTE: Effective Modern C++ item 42
     Value(Value&& rhs) noexcept;
 
     Value& operator=(Value&& rhs) noexcept;
@@ -58,6 +58,37 @@ public:
     explicit Value(double d);
 
     explicit Value(std::string_view sv);
+
+    bool IsNull() const
+    {
+        return type_ == ValueType::kNull;
+    }
+
+    bool IsBool() const
+    {
+        return type_ == ValueType::kBool;
+    }
+
+    bool IsNumber() const
+    {
+        return type_ == ValueType::kNumber;
+    }
+
+    bool IsString() const
+    {
+        return type_ == ValueType::kString;
+    }
+
+    bool IsArray() const
+    {
+        return type_ == ValueType::kArray;
+    }
+
+    bool IsObject() const
+    {
+        return type_ == ValueType::kObject;
+    }
+
 
     ValueType GetType() const
     {

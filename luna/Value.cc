@@ -70,7 +70,6 @@ Value& Value::operator=(const Value& rhs)
     return *this;
 }
 
-//NOTE: only kString kArray kObject need move semantic
 
 Value::Value(Value&& rhs) noexcept :
     type_(rhs.type_)
@@ -199,7 +198,7 @@ Value::Value(std::string_view sv) :
 
 Value& Value::AddObjectElement(luna::Value&& key, luna::Value&& value)
 {
-    //duplicate key is not allowed
+    //NOTE://duplicate key is not allowed
     o_->data.emplace_back(std::move(key), std::move(value));
     return o_->data.back().value;
 }
