@@ -25,7 +25,8 @@ set(CXX_FLAGS
         -Wno-null-dereference
         -Wno-sign-conversion
         -Wno-unused-private-field
-        -fmodules)
+        -fmodules
+        )
 
 if(CMAKE_BUILD_BITS EQUAL 32)
     list(APPEND CXX_FLAGS "-m32")
@@ -50,7 +51,7 @@ set(SOURCE_FILES
         luna/StringOutputStream.h
         luna/PrettyGenerator.h)
 
-add_library(luna STATIC ${SOURCE_FILES})
+add_library(luna SHARED ${SOURCE_FILES})
 
 add_executable(luna_simple example/main.cc)
 target_link_libraries(luna_simple luna)
