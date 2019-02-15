@@ -7,7 +7,6 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 set(CXX_FLAGS
-        -g
         -Wall
         -Wextra
         -Werror
@@ -34,7 +33,7 @@ endif()
 string(REPLACE ";" " " CMAKE_CXX_FLAGS "${CXX_FLAGS}")
 
 set(CMAKE_CXX_COMPILER "clang++")
-set(CMAKE_CXX_FLAGS_DEBUG "-O0")
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
 include_directories("${PROJECT_SOURCE_DIR}")
@@ -51,7 +50,7 @@ set(SOURCE_FILES
         luna/StringOutputStream.h
         luna/PrettyGenerator.h)
 
-add_library(luna SHARED ${SOURCE_FILES})
+add_library(luna STATIC ${SOURCE_FILES})
 
 add_executable(luna_simple example/main.cc)
 target_link_libraries(luna_simple luna)

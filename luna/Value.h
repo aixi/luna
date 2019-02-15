@@ -180,7 +180,7 @@ public:
     }
 
     template <typename T>
-    Value& AddObjectElement(std::string_view key, T&& value)
+    Value& AddObjectElement(const std::string_view& key, T&& value)
     {
         return AddObjectElement(Value(key), Value(std::forward<T>(value)));
     }
